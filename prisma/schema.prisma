@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ResearchProject {
+  id                String           @id @default(cuid())
+  topic             String
+  keywordsJson      String
+  subredditsJson    String
+  timeWindow        String
+  sortOrder         String
+  maxPosts          Int
+  maxComments       Int
+  minScoreRequested Int?
+  provider          String
+  createdAt         DateTime         @default(now())
+  queries           ResearchQuery[]
+  jobs              CollectionJob[]
+  posts             RedditPost[]
+  comments          RedditComment[]
+  clusters          TopicCluster[]
+  report            ResearchReport?
+}
+
+model ResearchQuery {
+  id            String          @id @default(cuid())
+  projectId     String
+  position      Int
+  text          String
+  subreddit     String
+  resultType    String
+  sort          String
+  timeWindow    String
+  status        String          @default("pending")
+  attempts      Int             @default(0)
+  returnedCount Int?
+  droppedCount  Int             @default(0)
+  error         String?
+  project       ResearchProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+}
+
+model CollectionJob {
+  id         String          @id @default(cuid())
+  projectId  String
+  type       String
+  status     String
+  label      String?
+  error      String?
+  retryAt    DateTime?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  project    ResearchProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, type])
+}
+
+model RedditPost {
+  id             String           @id @default(cuid())
+  projectId      String
+  redditId       String
+  fullname       String?
+  title          String
+  body           String
+  subreddit      String
+  author         String?
+  score          Int?
+  upvoteRatio    Float?
+  numComments    Int?
+  createdAt      DateTime?
+  permalink      String
+  url            String?
+  matchedQuery   String
+  relevance      Float
+  removed        Boolean          @default(false)
+  origin         String
+  project        ResearchProject  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  comments       RedditComment[]
+  analysis       AnalysisResult?  @relation("PostAnalysis")
+
+  @@unique([projectId, redditId])
+  @@index([projectId])
+}
+
+model RedditComment {
+  id              String          @id @default(cuid())
+  projectId       String
+  postId          String?
+  redditId        String
+  postRedditId    String?
+  parentRedditId  String?
+  body            String
+  subreddit       String
+  author          String?
+  score           Int?
+  createdAt       DateTime?
+  permalink       String
+  depth           Int?
+  relevance       Float
+  removed         Boolean         @default(false)
+  matchedQuery    String
+  origin          String
+  project         ResearchProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  post            RedditPost?     @relation(fields: [postId], references: [id], onDelete: SetNull)
+  analysis        AnalysisResult? @relation("CommentAnalysis")
+
+  @@unique([projectId, redditId])
+  @@index([projectId, postRedditId])
+}
+
+model AnalysisResult {
+  id               String         @id @default(cuid())
+  projectId        String
+  targetType       String
+  sentiment        String
+  confidence       Float
+  prosJson         String
+  consJson         String
+  painPointsJson   String
+  featureRequestsJson String
+  benefitsJson     String
+  dissatisfactionJson String
+  productsJson     String
+  competitorsJson  String
+  recommendationsJson String
+  purchaseIntent   String
+  contentKind      String
+  evidenceJson     String
+  permalink        String
+  status           String
+  model            String
+  provider         String
+  postId           String?        @unique
+  commentId        String?        @unique
+  post             RedditPost?    @relation("PostAnalysis", fields: [postId], references: [id], onDelete: Cascade)
+  comment          RedditComment? @relation("CommentAnalysis", fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+}
+
+model TopicCluster {
+  id            String          @id @default(cuid())
+  projectId     String
+  label         String
+  mentionCount  Int
+  permalinksJson String
+  excerptsJson  String
+  project       ResearchProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model ResearchReport {
+  id        String          @id @default(cuid())
+  projectId String          @unique
+  markdown  String
+  model     String
+  createdAt DateTime        @default(now())
+  project   ResearchProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model IngestRecord {
+  id     String  @id
+  source String
+  date   String
+  text   String
+  score  Int?
+  createdAt DateTime @default(now())
+  classification SipClassification?
+
+  @@index([source])
+}
+
+model SipClassification {
+  recordId         String       @id
+  status           String
+  resultJson       String?
+  model            String?
+  promptTokens     Int          @default(0)
+  cachedTokens     Int          @default(0)
+  completionTokens Int          @default(0)
+  createdAt        DateTime     @default(now())
+  record           IngestRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+}
