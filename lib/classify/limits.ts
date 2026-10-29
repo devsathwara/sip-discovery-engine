@@ -1,0 +1,2 @@
+export const MAX_COMMENT_CHARS = 4000;
+export const MAX_CLASSIFY_BODY_BYTES = 16_000;

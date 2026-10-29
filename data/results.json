@@ -1,0 +1,236 @@
+{
+  "generatedAt": "2026-10-29T02:59:34.787Z",
+  "volumes": {
+    "playstore": 1384,
+    "youtube": 4071,
+    "reddit": 1167,
+    "total": 6622
+  },
+  "gates": [
+    {
+      "gate": "irrelevant",
+      "count": 3460,
+      "pct": 59.4
+    },
+    {
+      "gate": "not_continuation",
+      "count": 2235,
+      "pct": 38.3
+    },
+    {
+      "gate": "voluntary",
+      "count": 103,
+      "pct": 1.8
+    },
+    {
+      "gate": "involuntary",
+      "count": 30,
+      "pct": 0.5
+    }
+  ],
+  "onTopic": {
+    "total": 133,
+    "voluntary": 103,
+    "involuntary": 30,
+    "ratio": "103:30",
+    "leaves": [
+      {
+        "leaf": "lost_interest_returns",
+        "count": 27,
+        "quotes": [
+          {
+            "source": "youtube",
+            "quote": "Kuch nhi mila 4 saal se kr rha hu sip, 3lakh 60 hazar ka abhi tak 3 lakh 70 hazar hi bana hai"
+          },
+          {
+            "source": "reddit",
+            "quote": "I have invested 8 lakhs in ppfas regular plan by SIP and after 3nyears it's still worth 8.25 lakhs"
+          },
+          {
+            "source": "youtube",
+            "quote": "I am not happy with indian market we are investing in mutual fund but return got zero"
+          }
+        ]
+      },
+      {
+        "leaf": "drifted_to_stocks_or_ipo",
+        "count": 20,
+        "quotes": [
+          {
+            "source": "reddit",
+            "quote": "I’ve reduced my investment in India to less than 20% of my monthly savings since the last 2 years."
+          },
+          {
+            "source": "youtube",
+            "quote": "Stop sips So that We can sip markets at lowest price"
+          },
+          {
+            "source": "reddit",
+            "quote": "I stopped my SIPs in late 2024, havent resumed since then."
+          }
+        ]
+      },
+      {
+        "leaf": "money_tight",
+        "count": 16,
+        "quotes": [
+          {
+            "source": "reddit",
+            "quote": "Pause sip for now. this sort of unexpected expenses is why I've reduced my monthly sip amount to just 20% of salary."
+          },
+          {
+            "source": "youtube",
+            "quote": "If aapke pass paise nahi rhe to portfolio me se stop krdena sip"
+          },
+          {
+            "source": "reddit",
+            "quote": "hence my SIPs took a pause. Planning to resume them from August onwards."
+          }
+        ]
+      },
+      {
+        "leaf": "other_voluntary",
+        "count": 15,
+        "quotes": [
+          {
+            "source": "reddit",
+            "quote": "I have stopped using it sometime back proactively since a Google search wasn't showing up details of theirs properly."
+          },
+          {
+            "source": "youtube",
+            "quote": "Mene cancel Kiya hain, lekin paise withdraw nahi hue, to vo kese karna hain"
+          },
+          {
+            "source": "reddit",
+            "quote": "I paused my SIP for a month. now I am unable to restart it."
+          }
+        ]
+      },
+      {
+        "leaf": "sip_rigidity_wants_control",
+        "count": 13,
+        "quotes": [
+          {
+            "source": "playstore",
+            "quote": "Due to market fluctuations, I paused my investments for a while, which led to my account being deactivated."
+          },
+          {
+            "source": "reddit",
+            "quote": "today I cancel the SIP, now I want to see next month if they rebalance or not"
+          },
+          {
+            "source": "youtube",
+            "quote": "5 years sip kya tha abi nikalnathu locked thikara 3 saal ka baad nikalsaktha thikra sir"
+          }
+        ]
+      },
+      {
+        "leaf": "mandate_cancelled",
+        "count": 12,
+        "quotes": [
+          {
+            "source": "reddit",
+            "quote": "immediately after that I stopped my SIP mandate through Kuvera. And tried to register a new mandate on MFCentral"
+          },
+          {
+            "source": "youtube",
+            "quote": "Mere sip cancel krne k baad nhi SIP Autopay in progress dikh rha"
+          },
+          {
+            "source": "youtube",
+            "quote": "Mene kiya cancel sip 1000 rupaye ki sip per grow app me"
+          }
+        ]
+      },
+      {
+        "leaf": "reallocated_goal_changed",
+        "count": 11,
+        "quotes": [
+          {
+            "source": "reddit",
+            "quote": "So I have reduced the SIP amount to 18k now which has 6.5k for tax savings and Rest all into other mutual funds."
+          },
+          {
+            "source": "reddit",
+            "quote": "stopped it now because of the experience i faced when i had to pause all my sips to fund my house purchase."
+          },
+          {
+            "source": "reddit",
+            "quote": "After a while rebalancing and overview and update in goals changed, stopped and switched in few schemes."
+          }
+        ]
+      },
+      {
+        "leaf": "failed_debit_unrecovered",
+        "count": 8,
+        "quotes": [
+          {
+            "source": "youtube",
+            "quote": "Sip mat Krna bhai mane kiya hi usme k bhi kat to barobar rha hi pr jama nhi ho rha hi"
+          },
+          {
+            "source": "reddit",
+            "quote": "I just did that for a month and it's over still with Auto SIP amount isn't deducted"
+          },
+          {
+            "source": "playstore",
+            "quote": "auto payment fails in mutual fund sip and there is no retry done by the app."
+          }
+        ]
+      },
+      {
+        "leaf": "bank_tech_reject",
+        "count": 5,
+        "quotes": []
+      },
+      {
+        "leaf": "mandate_expired",
+        "count": 3,
+        "quotes": []
+      },
+      {
+        "leaf": "no_balance_on_date",
+        "count": 2,
+        "quotes": []
+      },
+      {
+        "leaf": "no_personal_evidence_its_working",
+        "count": 1,
+        "quotes": []
+      }
+    ]
+  },
+  "golden": {
+    "rows": 25,
+    "overall": 17,
+    "gate": 18,
+    "leaf": 17,
+    "corrections": [
+      {
+        "id": "reddit:t1_pemmfk5",
+        "source": "reddit",
+        "leaf": "drifted_to_stocks_or_ipo",
+        "text": "Don’t make this mistake I made. Axis smallcap cap was doing well, stopped SIP, invested elsewhere"
+      },
+      {
+        "id": "reddit:t1_kzc6ji4",
+        "source": "reddit",
+        "leaf": "money_tight",
+        "text": "paused it during 2010 due to financial commitments and started again in 2013"
+      },
+      {
+        "id": "reddit:t3_1gq8ici",
+        "source": "reddit",
+        "leaf": "sip_rigidity_wants_control",
+        "text": "How do I Un-Pause my SIP? I had paused one of my SIPs by mistake."
+      }
+    ]
+  },
+  "quality": {
+    "classified": 5828,
+    "preFiltered": 790,
+    "nonVerbatimQuotes": 36,
+    "lowConfidence": 7,
+    "schemaErrors": 4
+  }
+}

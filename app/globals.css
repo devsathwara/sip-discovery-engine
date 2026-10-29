@@ -89,8 +89,20 @@ th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.4rem; border-
 .progress { font-weight: 650; }
 footer { color: var(--muted); font-size: 0.85rem; padding: 2rem 0 3rem; }
 .error { color: var(--clay); }
+.gate-bar { margin: 0.6rem 0 1rem; }
+.leaf-list { display: grid; gap: 1.1rem; }
+.leaf { display: grid; grid-template-columns: minmax(14rem, 22rem) 1fr; gap: 1rem; align-items: start; }
+.leaf-name { display: flex; justify-content: space-between; gap: 0.6rem; font-size: 0.92rem; }
+.track { height: 10px; border-radius: 99px; background: #efe8db; overflow: hidden; }
+.track span { display: block; height: 100%; background: var(--green); }
+.quote blockquote { margin: 0; }
+.corrections { margin: 0.4rem 0 0; padding-left: 1.1rem; }
+.corrections li { margin: 0.45rem 0; }
+.label-result dl { display: grid; gap: 0.55rem; margin: 0.8rem 0 0; }
+.label-result dt { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.label-result dd { margin: 0; }
 
 @media (max-width: 800px) {
-  .stats, .cards, .row { grid-template-columns: 1fr; }
+  .stats, .cards, .row, .leaf { grid-template-columns: 1fr; }
   .top { display: block; }
 }

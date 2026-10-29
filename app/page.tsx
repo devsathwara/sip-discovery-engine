@@ -1,103 +1,205 @@
-import { prisma } from '@/lib/db';
-import { startResearch } from '@/app/actions';
-import { COLLECTION_LIMITS, MAX_SEARCHES, PRICE_NOTE } from '@/lib/limits';
+import { ClassifyBox } from '@/components/ClassifyBox';
+import results from '@/data/results.json';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const params = await searchParams;
-  const fixture = process.env.REDDIT_PROVIDER === 'fixture';
-  const projects = await prisma.researchProject.findMany({ orderBy: { createdAt: 'desc' }, take: 8 });
+const SOURCE_LABEL: Record<string, string> = {
+  playstore: 'Play Store',
+  youtube: 'YouTube',
+  reddit: 'Reddit'
+};
 
+const GATE_CLASS: Record<string, string> = {
+  irrelevant: 'neu',
+  not_continuation: 'mix',
+  voluntary: 'pos',
+  involuntary: 'neg'
+};
+
+export default function HomePage() {
+  const maxLeaf = results.onTopic.leaves[0]?.count ?? 1;
   return (
     <main>
-      <h1>Read a bounded slice of Reddit.</h1>
+      <h1>What public comments say about stopping a SIP</h1>
       <p className="lede">
-        Enter a topic, name the subreddits to search, and collect matching posts and comments. Each search is capped at about 25 items.
-        The result is a sample you can open and check.
+        Labels from {results.volumes.total.toLocaleString('en-IN')} public Play Store reviews, YouTube comments, and Reddit posts.
+        On-topic means the writer’s own SIP was stopped, paused, reduced, skipped, or failed.
       </p>
-      {params.error ? <p className="error">{params.error}</p> : null}
-      {fixture ? (
-        <p className="banner">Demo mode is on. Results are labeled fixtures, not Reddit posts.</p>
-      ) : (
-        <p className="banner">{PRICE_NOTE} A Reddit API key is not used. An Apify token is.</p>
-      )}
-      <form className="research panel" action={startResearch}>
-        <label>
-          Topic
-          <input name="topic" required minLength={3} placeholder="Best fitness bands for sleep tracking" />
-        </label>
-        <div className="row">
-          <label>
-            Keywords, comma separated
-            <input name="keywords" placeholder="sleep score, battery, strap" />
-          </label>
-          <label>
-            Subreddits, comma separated
-            <input name="subreddits" required placeholder="fitbit, Garmin" />
-          </label>
+
+      <section className="grid stats">
+        <div className="stat">
+          <b>{results.volumes.total.toLocaleString('en-IN')}</b>
+          <span>public rows</span>
         </div>
-        <div className="row">
-          <label>
-            Time window
-            <select name="timeWindow" defaultValue="month">
-              <option value="hour">Past hour</option>
-              <option value="day">Past day</option>
-              <option value="week">Past week</option>
-              <option value="month">Past month</option>
-              <option value="year">Past year</option>
-              <option value="all">All time</option>
-            </select>
-          </label>
-          <label>
-            Sort
-            <select name="sort" defaultValue="relevance">
-              <option value="relevance">Relevance</option>
-              <option value="newest">Newest</option>
-              <option value="discussed">Most discussed</option>
-            </select>
-          </label>
+        <div className="stat">
+          <b>{results.quality.classified.toLocaleString('en-IN')}</b>
+          <span>classified</span>
         </div>
-        <div className="row">
-          <label>
-            Maximum posts to keep
-            <input name="maxPosts" type="number" min={1} max={100} defaultValue={25} />
-          </label>
-          <label>
-            Maximum comments to keep
-            <input name="maxComments" type="number" min={0} max={100} defaultValue={25} />
-          </label>
+        <div className="stat">
+          <b>{results.onTopic.total}</b>
+          <span>on-topic events</span>
         </div>
-        <label>
-          Minimum score
-          <input name="minScore" type="number" min={0} placeholder="Unavailable from this source" disabled />
-        </label>
-        <p className="meta">
-          Language filtering is not available. A subreddit is required. This run uses at most {MAX_SEARCHES} searches. Comment search does not download a full thread.
-        </p>
-        <button type="submit">{fixture ? 'Run labeled demo' : 'Collect sample'}</button>
-      </form>
+        <div className="stat">
+          <b>{results.onTopic.ratio}</b>
+          <span>voluntary : involuntary</span>
+        </div>
+      </section>
+
       <section className="panel">
-        <h2>What this source will not return</h2>
-        <ul className="limits">
-          {COLLECTION_LIMITS.map((limit) => (
-            <li key={limit}>{limit}</li>
+        <h2>Where the rows came from</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Rows</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Play Store</td>
+              <td>{results.volumes.playstore.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td>YouTube</td>
+              <td>{results.volumes.youtube.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td>Reddit</td>
+              <td>{results.volumes.reddit.toLocaleString('en-IN')}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section className="panel">
+        <h2>Gate split</h2>
+        <p className="meta">Share of the {results.quality.classified.toLocaleString('en-IN')} classified rows.</p>
+        <div className="bar gate-bar" aria-hidden="true">
+          {results.gates.map((gate) => (
+            <i key={gate.gate} className={GATE_CLASS[gate.gate] ?? 'neu'} style={{ width: `${gate.pct}%` }} />
+          ))}
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Gate</th>
+              <th>Rows</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.gates.map((gate) => (
+              <tr key={gate.gate}>
+                <td>{gate.gate}</td>
+                <td>{gate.count.toLocaleString('en-IN')}</td>
+                <td>{gate.pct}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="panel">
+        <h2>Why the {results.onTopic.total} on-topic events happened</h2>
+        <p className="meta">
+          {results.onTopic.voluntary} voluntary and {results.onTopic.involuntary} involuntary. Quotes are verbatim spans of the source text.
+        </p>
+        <div className="leaf-list">
+          {results.onTopic.leaves.map((leaf) => (
+            <article key={leaf.leaf} className="leaf">
+              <div>
+                <div className="leaf-name">
+                  <b>{leaf.leaf}</b>
+                  <span>{leaf.count}</span>
+                </div>
+                <div className="track" aria-hidden="true">
+                  <span style={{ width: `${Math.max(4, (leaf.count / maxLeaf) * 100)}%` }} />
+                </div>
+              </div>
+              {leaf.quotes.length > 0 ? (
+                <div>
+                  {leaf.quotes.map((quote) => (
+                    <figure key={quote.quote} className="quote">
+                      <blockquote>{quote.quote}</blockquote>
+                      <figcaption className="meta">{SOURCE_LABEL[quote.source] ?? quote.source}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel">
+        <h2>Golden-set check</h2>
+        <div className="grid stats">
+          <div className="stat">
+            <b>
+              {results.golden.overall}/{results.golden.rows}
+            </b>
+            <span>overall agreement</span>
+          </div>
+          <div className="stat">
+            <b>
+              {results.golden.gate}/{results.golden.rows}
+            </b>
+            <span>gate agreement</span>
+          </div>
+          <div className="stat">
+            <b>
+              {results.golden.leaf}/{results.golden.rows}
+            </b>
+            <span>leaf agreement</span>
+          </div>
+        </div>
+        <h3>Three rows the recovery pass moved out of not_continuation</h3>
+        <ul className="corrections">
+          {results.golden.corrections.map((row) => (
+            <li key={row.id}>
+              <span className="pill">{row.leaf}</span> {row.text}
+              <span className="meta"> {SOURCE_LABEL[row.source] ?? row.source}</span>
+            </li>
           ))}
         </ul>
       </section>
-      <section>
-        <h2>Recent samples</h2>
-        {projects.length === 0 ? <p className="meta">No samples yet.</p> : null}
-        <div className="grid">
-          {projects.map((project) => (
-            <a key={project.id} className="card" href={`/projects/${project.id}`}>
-              <h3>{project.topic}</h3>
-              <span className="meta">
-                {project.provider === 'fixture' ? 'Labeled demo' : 'Apify search'} · {project.timeWindow}
-              </span>
-            </a>
-          ))}
-        </div>
+
+      <section className="panel">
+        <h2>Data quality and limits</h2>
+        <table>
+          <tbody>
+            <tr>
+              <td>Classified</td>
+              <td>{results.quality.classified.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td>Pre-filtered generic praise, not sent to the model</td>
+              <td>{results.quality.preFiltered}</td>
+            </tr>
+            <tr>
+              <td>Stored quotes that are not a verbatim span</td>
+              <td>{results.quality.nonVerbatimQuotes}</td>
+            </tr>
+            <tr>
+              <td>Low confidence</td>
+              <td>{results.quality.lowConfidence}</td>
+            </tr>
+            <tr>
+              <td>Schema errors, no label</td>
+              <td>{results.quality.schemaErrors}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="meta">
+          The quote list skips the {results.quality.nonVerbatimQuotes} non-verbatim quotes. Low-confidence labels stay in the counts and are marked for review.
+          This page reads a static export. It does not open a database.
+        </p>
+      </section>
+
+      <section className="panel">
+        <h2>Classify a comment</h2>
+        <p className="meta">The same taxonomy and prompt as the research run. Nothing is stored. Comments over 4,000 characters are refused.</p>
+        <ClassifyBox />
       </section>
     </main>
   );

@@ -7,8 +7,8 @@ const sans = Figtree({ subsets: ['latin'], variable: '--sans' });
 const serif = Newsreader({ subsets: ['latin'], variable: '--serif' });
 
 export const metadata: Metadata = {
-  title: 'SIP discovery engine',
-  description: 'Collect a bounded Reddit search sample and read it with the original links.'
+  title: 'SIP continuation research',
+  description: 'Public-comment labels for why an Indian mutual-fund SIP stops. Not investment advice.'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,10 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="wrap">
           <header className="top">
             <Link className="brand" href="/">SIP discovery</Link>
-            <span className="meta">Public search sample. Not all of Reddit.</span>
+            <span className="meta">Public comments. Not a fund recommendation.</span>
           </header>
           {children}
-          <footer>Collected text stays attributed to its permalink. This tool does not recommend a product, fund, or stock.</footer>
+          <footer>Research analysis of public data. Not investment advice.</footer>
         </div>
       </body>
     </html>

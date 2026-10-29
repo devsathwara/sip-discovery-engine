@@ -1,5 +1,15 @@
 # SIP discovery engine
 
+The public homepage is a static SIP continuation report. It reads `data/results.json` and does not open a database. Regenerate that file locally after a research run:
+
+```bash
+npm run export:results
+```
+
+Live comments go to `POST /api/classify`, which uses the research classifier and does not write a row. On Vercel set only `XAI_API_KEY` and `LLM_MODEL=grok-4.20-0309-non-reasoning`. Do not set `DATABASE_URL`. `npm run build` supplies a dummy file URL to `prisma generate` so the client can compile; the homepage never connects.
+
+The Reddit research screens under `/projects` are not linked from the homepage. They still need the local SQLite file.
+
 A Next.js research tool that collects a **bounded sample** of public Reddit posts and comments for a topic. It does not use a Reddit API key, OAuth app, or PRAW.
 
 The placeholder Vite app that used to live in this folder was replaced by this Next.js app. `gp-discovery-engine` is a different project and is not part of this one.
