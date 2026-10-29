@@ -16,6 +16,18 @@ const GATE_CLASS: Record<string, string> = {
   involuntary: 'neg'
 };
 
+const INVOLUNTARY_LEAVES = new Set([
+  'mandate_cancelled',
+  'failed_debit_unrecovered',
+  'bank_tech_reject',
+  'mandate_expired',
+  'no_balance_on_date',
+  'account_kyc_break'
+]);
+
+const VOLUNTARY_BAR = '#1d4e89';
+const INVOLUNTARY_BAR = '#0e7c86';
+
 export default function HomePage() {
   const maxLeaf = results.onTopic.leaves[0]?.count ?? 1;
   return (
@@ -104,16 +116,25 @@ export default function HomePage() {
         <p className="meta">
           {results.onTopic.voluntary} voluntary and {results.onTopic.involuntary} involuntary. Quotes are verbatim spans of the source text.
         </p>
+        <p className="meta">
+          <span style={{ color: VOLUNTARY_BAR }} aria-hidden="true">■</span> voluntary{' '}
+          <span style={{ color: INVOLUNTARY_BAR }} aria-hidden="true">■</span> involuntary
+        </p>
         <div className="leaf-list">
-          {results.onTopic.leaves.map((leaf) => (
+          {results.onTopic.leaves.map((leaf) => {
+            const involuntary = INVOLUNTARY_LEAVES.has(leaf.leaf);
+            return (
             <article key={leaf.leaf} className="leaf">
               <div>
                 <div className="leaf-name">
-                  <b>{leaf.leaf}</b>
+                  <b>
+                    {leaf.leaf}
+                    {involuntary ? ' (involuntary)' : ''}
+                  </b>
                   <span>{leaf.count}</span>
                 </div>
                 <div className="track" aria-hidden="true">
-                  <span style={{ width: `${Math.max(4, (leaf.count / maxLeaf) * 100)}%` }} />
+                  <span style={{ width: `${Math.max(4, (leaf.count / maxLeaf) * 100)}%`, background: involuntary ? INVOLUNTARY_BAR : VOLUNTARY_BAR }} />
                 </div>
               </div>
               {leaf.quotes.length > 0 ? (
@@ -127,7 +148,8 @@ export default function HomePage() {
                 </div>
               ) : null}
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -165,17 +187,12 @@ export default function HomePage() {
       </section>
 
       <section className="panel">
-        <h2>Data quality and limits</h2>
+        <h2>Corpus: {results.volumes.total.toLocaleString('en-IN')} rows</h2>
+        <p>
+          {results.quality.classified.toLocaleString('en-IN')} classified · {results.quality.preFiltered} pre-filtered (generic praise, not sent to the model) · {results.quality.schemaErrors} schema errors (no label)
+        </p>
         <table>
           <tbody>
-            <tr>
-              <td>Classified</td>
-              <td>{results.quality.classified.toLocaleString('en-IN')}</td>
-            </tr>
-            <tr>
-              <td>Pre-filtered generic praise, not sent to the model</td>
-              <td>{results.quality.preFiltered}</td>
-            </tr>
             <tr>
               <td>Stored quotes that are not a verbatim span</td>
               <td>{results.quality.nonVerbatimQuotes}</td>
@@ -183,10 +200,6 @@ export default function HomePage() {
             <tr>
               <td>Low confidence</td>
               <td>{results.quality.lowConfidence}</td>
-            </tr>
-            <tr>
-              <td>Schema errors, no label</td>
-              <td>{results.quality.schemaErrors}</td>
             </tr>
           </tbody>
         </table>
