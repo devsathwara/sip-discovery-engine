@@ -28,6 +28,23 @@ const INVOLUNTARY_LEAVES = new Set([
 const VOLUNTARY_BAR = '#1d4e89';
 const INVOLUNTARY_BAR = '#0e7c86';
 
+const LEAF_MEANING: Record<string, string> = {
+  lost_interest_returns: 'They stopped because the returns were disappointing.',
+  drifted_to_stocks_or_ipo: 'They moved the money to stocks, shares, or an IPO.',
+  money_tight: 'They paused or stopped because money was short.',
+  other_voluntary: 'They chose to stop, and none of the reasons above fit.',
+  sip_rigidity_wants_control: 'The auto-debit felt too rigid, so they stopped it.',
+  reallocated_goal_changed: 'The goal changed, or they moved the SIP to another fund.',
+  mandate_cancelled: 'The mandate ended without them choosing to stop, or a cancel did not stick.',
+  failed_debit_unrecovered: 'The debit failed, or the money never landed.',
+  bank_tech_reject: 'The bank or the app rejected the debit.',
+  mandate_expired: 'The mandate expired.',
+  no_balance_on_date: 'There was not enough balance on the debit date.',
+  no_personal_evidence_its_working: 'They could not see it working for them.',
+  social_influence_told_to_stop: 'Someone told them to stop.',
+  account_kyc_break: 'The account or KYC broke the debit.'
+};
+
 export default function HomePage() {
   const maxLeaf = results.onTopic.leaves[0]?.count ?? 1;
   return (
@@ -133,6 +150,7 @@ export default function HomePage() {
                   </b>
                   <span>{leaf.count}</span>
                 </div>
+                <p className="meta">{LEAF_MEANING[leaf.leaf]}</p>
                 <div className="track" aria-hidden="true">
                   <span style={{ width: `${Math.max(4, (leaf.count / maxLeaf) * 100)}%`, background: involuntary ? INVOLUNTARY_BAR : VOLUNTARY_BAR }} />
                 </div>
@@ -151,6 +169,9 @@ export default function HomePage() {
             );
           })}
         </div>
+        <p className="meta">
+          Hand check: the gate matched on {results.golden.gate} of {results.golden.rows}, the exact leaf on {results.golden.leaf} of {results.golden.rows}. The {results.onTopic.ratio} split is the sturdier number.
+        </p>
       </section>
 
       <section className="panel">

@@ -74,7 +74,7 @@ async function main() {
     .sort((a, b) => b.count - a.count || a.leaf.localeCompare(b.leaf));
 
   const ranked = leaves.map((leaf, index) => {
-    const quotes = index < 8 ? pickQuotes(leaf.rows) : [];
+    const quotes = index < 8 ? pickQuotes(leaf.leaf, leaf.rows) : [];
     return { leaf: leaf.leaf, count: leaf.count, quotes };
   });
 
@@ -137,31 +137,63 @@ async function main() {
   await prisma.$disconnect();
 }
 
-function pickQuotes(rows: Array<{ source: string; text: string; quote: string }>): Array<{ source: string; quote: string }> {
+function pickQuotes(leaf: string, rows: Array<{ source: string; text: string; quote: string }>): Array<{ source: string; quote: string }> {
   const usable = rows
     .map((row) => ({ source: row.source, quote: collapse(row.quote), ok: quoteIsVerbatim(row.text, row.quote) }))
-    .filter((row) => row.ok && words(row.quote) >= 6 && words(row.quote) <= 25)
-    .sort((a, b) => Number(mentionsSip(b.quote)) - Number(mentionsSip(a.quote)) || words(b.quote) - words(a.quote));
+    .filter((row) => row.ok && words(row.quote) >= 6 && words(row.quote) <= 25 && quoteFitsLeaf(leaf, row.quote))
+    .sort((a, b) => quoteRank(b.quote) - quoteRank(a.quote) || words(b.quote) - words(a.quote));
   const picked: Array<{ source: string; quote: string }> = [];
   const seen = new Set<string>();
   for (const row of usable) {
     if (picked.length >= 3) break;
-    if (seen.has(row.quote)) continue;
-    if (picked.some((item) => item.source === row.source) && picked.length < 2) continue;
+    if (seen.has(row.quote) || picked.some((item) => quoteKey(item.quote) === quoteKey(row.quote))) continue;
+    if (picked.some((item) => item.source === row.source) && usable.some((item) => !picked.some((got) => got.source === item.source) && !seen.has(item.quote))) continue;
     picked.push({ source: row.source, quote: row.quote });
     seen.add(row.quote);
   }
   for (const row of usable) {
     if (picked.length >= 3) break;
-    if (seen.has(row.quote)) continue;
+    if (seen.has(row.quote) || picked.some((item) => quoteKey(item.quote) === quoteKey(row.quote))) continue;
     picked.push({ source: row.source, quote: row.quote });
     seen.add(row.quote);
   }
   return picked;
 }
 
-function mentionsSip(quote: string): boolean {
-  return /sip|stop|pause|cancel|return|paisa|invest|fund|mandate|nuksan/i.test(quote);
+function quoteRank(quote: string): number {
+  if (/thinking of|sip mat|mat krna/i.test(quote)) return 0;
+  return 1;
+}
+
+function quoteKey(quote: string): string {
+  return quote.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).slice(0, 6).join(' ');
+}
+
+function quoteFitsLeaf(leaf: string, quote: string): boolean {
+  const own = /\bI\b|\bI'm\b|\bI’ve\b|\bmy\b|mene|maine|mera|mere|मुझे|मैने/i.test(quote);
+  switch (leaf) {
+    case 'lost_interest_returns':
+      return /return|loss|minus|negative|लास|रिटर्न|profit|8\.25|kuch nhi mila|badh hi nahi|nahi ho raha|nahihua|ghanta|mynes/i.test(quote) && !/^should i\b/i.test(quote);
+    case 'drifted_to_stocks_or_ipo':
+      return /\bstocks?\b|shares?|\bipo\b|\betfs?\b|s&p|\bnifty\b|gambling|betting|equity|स्टॉक|\bmarkets\b|\bindex\b/i.test(quote)
+        && /stop|pause|cancel|moved|start|putting|buying|reduced|opened/i.test(quote)
+        && !/autopay always failed|\bwe can\b/i.test(quote);
+    case 'money_tight':
+      return own && /money|cash|salary|expense|kharcha|loan|cashflow|financial commitment|emergency|paise nahi|where's money/i.test(quote) && !/^you can\b|^if aapke\b/i.test(quote);
+    case 'sip_rigidity_wants_control':
+      return /control|locked|fixed day|mandate/i.test(quote);
+    case 'mandate_cancelled':
+      return /never requested|still deducted|despite cancellation|didn.?t process|payment cut|cancel nahi|cancle ho gaya|still active/i.test(quote)
+        && !/stopped my sip mandate/i.test(quote);
+    case 'failed_debit_unrecovered':
+      return /paisa nahi aya|nahi aya|refund|jama nhi|isn.?t deducted|auto payment fails|withdrawal nahi|wapas|वापस|kate hai/i.test(quote);
+    case 'reallocated_goal_changed':
+      return own && /house|land|gold|switched|flexi|goals|allocation|schemes/i.test(quote) && /stop|reduc|switch|broke|break/i.test(quote);
+    case 'other_voluntary':
+      return /stopped my sip|paused my sip|stop kr di thi/i.test(quote);
+    default:
+      return false;
+  }
 }
 
 main().catch(async (error: unknown) => {
